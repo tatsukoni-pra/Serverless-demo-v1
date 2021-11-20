@@ -1,14 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
+	event "thumbnail/event"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func HandleRequest() (string, error) {
-	fmt.Println("hello world!")
-	fmt.Println("output test v2")
+func HandleRequest(ctx context.Context, events events.SNSEvent) (string, error) {
+	fmt.Println(event.GetS3TrigerInfo(events).Key)
 	return "", nil
 }
 
