@@ -5,11 +5,11 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-type snsRecordCollection struct {
-	Record []snsMessage `json:"Records"`
+type SnsRecordCollection struct {
+	Record []SnsMessage `json:"Records"`
 }
 
-type snsMessage struct {
+type SnsMessage struct {
 	EventName string `json:"eventName"`
 	S3Message SnsS3Message `json:"s3"`
 }
@@ -34,7 +34,7 @@ type S3Info struct {
 
 func GetS3TrigerInfo(SNSEvent events.SNSEvent) *S3Info {
 	for _, record := range SNSEvent.Records {
-		var snsRecordCollection snsRecordCollection
+		var snsRecordCollection SnsRecordCollection
 		if err := json.Unmarshal([]byte(record.SNS.Message), &snsRecordCollection); err != nil {
 			return getS3TrigerErrorInfo()
 		}
