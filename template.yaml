@@ -16,7 +16,11 @@ Resources:
         - x86_64
       Tracing: Active
       Role: !GetAtt ThumbnailFunctionLambdaRole.Arn
-
+      Events:
+        SNSTopicEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref SNSTopic
   ThumbnailFunctionLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -54,3 +58,28 @@ Resources:
                   - logs:CreateLogStream
                 Resource:
                   - "arn:aws:logs:*:*:*"
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "TopicForThumbnailFunctionLambda"
+      TopicName: "TopicForThumbnailFunctionLambda"
+  SNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties: 
+      PolicyDocument:
+        Version: "2008-10-17"
+        Id: "from_s3_policy_id"
+        Statement:
+          -
+            Sid: SendToSns
+            Effect: Allow
+            Principal:
+              AWS: "*"
+            Action:
+              SNS:Publish
+            Resource: !Ref SNSTopic
+            Condition:
+              ArnLike:
+                aws:SourceArn: arn:aws:s3:::tatsukoni-lambda-demo
+      Topics: 
+        - !Ref SNSTopic
