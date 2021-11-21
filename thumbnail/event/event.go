@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+
 	"github.com/aws/aws-lambda-go/events"
 )
 
