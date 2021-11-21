@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"gopkg.in/gographics/imagick.v2/imagick"
 )
 
 func ExecThumbnail(bucketName string, objectKey string) {
@@ -27,7 +28,27 @@ func ExecThumbnail(bucketName string, objectKey string) {
 	s3ObjectBody := s3Object.Body
 	defer s3ObjectBody.Close()
 
-	// TODO: 画像リサイズ
+	// 画像リサイズ
+	imagick.Initialize()
+	defer imagick.Terminate()
+	mw := imagick.NewMagickWand()
+	if err := mw.ReadImageBlob(s3ObjectBody); err != nil {
+		log.Fatal(err)
+	}
+	// Get original logo size
+	width := mw.GetImageWidth()
+	height := mw.GetImageHeight()
+	// Calculate half the size
+	hWidth := uint(width / 2)
+	hHeight := uint(height / 2)
+	// リサイズ
+	if err := mw.ResizeImage(hWidth, hHeight, imagick.FILTER_LANCZOS, 1); err != nil {
+		log.Fatal(err)
+	}
+	// 圧縮
+	if err := mw.SetImageCompressionQuality(95); err != nil {
+		log.Fatal(err)
+	}
 
 	// 元画像を別バケットにアップロード
 	uploader := s3manager.NewUploader(sess)
@@ -35,7 +56,7 @@ func ExecThumbnail(bucketName string, objectKey string) {
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String("tatsukoni-lambda-demo-upload"),
 		Key:    aws.String(uploadKey),
-		Body:   s3ObjectBody,
+		Body:   mw.GetImageBlob(),
 	})
 	if err != nil {
 		log.Fatal(err)
