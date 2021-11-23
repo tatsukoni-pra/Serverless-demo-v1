@@ -11,7 +11,7 @@ Resources:
     Properties:
       CodeUri: thumbnail/
       Handler: thumbnail
-      Runtime: go1.x
+      Runtime: provided
       Architectures:
         - x86_64
       Tracing: Active
@@ -21,6 +21,8 @@ Resources:
           Type: SNS
           Properties:
             Topic: !Ref SNSTopic
+    Metadata:
+      BuildMethod: makefile
   ThumbnailFunctionLambdaRole:
     Type: AWS::IAM::Role
     Properties:

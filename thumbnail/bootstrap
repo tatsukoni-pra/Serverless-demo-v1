@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -euo pipefail
+
+# /var/task/ハンドラ名
+EXEC="$LAMBDA_TASK_ROOT/$_HANDLER"
+
+# 実行可能バイナリがなければ初期化エラーのエンドポイントにエラーをPOST
+if [ ! -x "$EXEC" ]; then
+    ERROR="{\"errorMessage\" : \"$_HANDLER is not found.\", \"errorType\" : \"HandlerNotFoundException\"}"
+    curl -X POST "http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/init/error"  -d "$ERROR"
+    exit 1
+fi
+
+# イベントループはバイナリの中で実装してある
+$EXEC
