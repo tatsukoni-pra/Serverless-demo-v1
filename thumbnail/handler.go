@@ -24,7 +24,6 @@ func init() {
 
 func main() {
     log.Println("handler started")
-
 	// イベントループ
 	for {
         func() {
@@ -42,6 +41,7 @@ func main() {
 			data, _ := ioutil.ReadAll(resp.Body)
 			_, err := handle(data)
 			if err != nil {
+				http.Post(respErrorEndpoint(rId), "application/json", bytes.NewBuffer([]byte(rId)))
 				log.Fatal(err)
 			}
 
@@ -65,4 +65,8 @@ func handle(payload []byte) (string, error) {
 
 func respEndpoint(requestId string) string {
     return runtimeApiEndpointPrefix + requestId + "/response"
+}
+
+func respErrorEndpoint(requestId string) string {
+    return runtimeApiEndpointPrefix + requestId + "/error"
 }

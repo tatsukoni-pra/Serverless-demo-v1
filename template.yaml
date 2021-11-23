@@ -11,9 +11,9 @@ Resources:
     Properties:
       CodeUri: thumbnail/
       Handler: thumbnail
-      Runtime: provided
+      Runtime: provided.al2
       Architectures:
-        - x86_64
+        - arm64
       Tracing: Active
       Role: !GetAtt ThumbnailFunctionLambdaRole.Arn
       Events:
