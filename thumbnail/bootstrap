@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -euo pipefail
+
+# /var/task/ハンドラ名
+EXEC="$LAMBDA_TASK_ROOT/$_HANDLER"
+
+# 実行可能バイナリがなければ初期化エラーとしてPOST
+# リクエストボディの形式は何でも良い
+if [ ! -x "$EXEC" ]; then
+    ERROR="{\"errorMessage\" : \"$_HANDLER is not found.\", \"errorType\" : \"HandlerNotFoundException\"}"
+    curl -X POST "http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/init/error"  -d "$ERROR"
+    exit 1
+fi
+
+# イベントループはハンドラの方で実装
+echo "exec handler from bootstrap"
+$EXEC
